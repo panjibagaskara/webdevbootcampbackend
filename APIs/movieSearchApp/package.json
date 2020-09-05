@@ -1,0 +1,14 @@
+{
+  "name": "moviesearchapp",
+  "version": "1.0.0",
+  "description": "Movie search with OMDB",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Panji Bagaskara",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
