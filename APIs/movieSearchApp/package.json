@@ -9,6 +9,8 @@
   "author": "Panji Bagaskara",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.20.0",
+    "ejs": "^3.1.5",
     "express": "^4.17.1"
   }
 }
