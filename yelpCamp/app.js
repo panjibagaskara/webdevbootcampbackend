@@ -1,39 +1,70 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
+var express = require('express'),
+	bodyParser = require('body-parser'),
+	mongoose = require('mongoose'),
+	dotenv = require('dotenv'),
+	app = express();
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+dotenv.config({path: '/workspace/webdevbootcamp/.env', debug: process.env.DEBUG});
+mongoose.connect(process.env.DB_HOST, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+});
 
-var campgrounds = [
-		{name: 'Gunung Putri', img:'https://i2.wp.com/hargakamar.com/wp-content/uploads/2019/04/Harga-Tiket-Masuk-Bukit-Alesano-Campground-Bogor.jpg?resize=630%2C380&ssl=1'},
-		{name: 'Bumi Perkemahan Cibubur', img:'https://www.travelblog.id/wp-content/uploads/2019/06/Travelblogid-Campground-Candi-Gedong-Songo.jpeg'},
-		{name: 'Himalaya', img:'https://www.nps.gov/mora/planyourvisit/images/OhanaCampground2016_CMeleedy_01_web.jpeg?maxwidth=1200&maxheight=1200&autorotate=false'},
-	{name: 'Gunung Putri', img:'https://i2.wp.com/hargakamar.com/wp-content/uploads/2019/04/Harga-Tiket-Masuk-Bukit-Alesano-Campground-Bogor.jpg?resize=630%2C380&ssl=1'},
-		{name: 'Bumi Perkemahan Cibubur', img:'https://www.travelblog.id/wp-content/uploads/2019/06/Travelblogid-Campground-Candi-Gedong-Songo.jpeg'},
-		{name: 'Himalaya', img:'https://www.nps.gov/mora/planyourvisit/images/OhanaCampground2016_CMeleedy_01_web.jpeg?maxwidth=1200&maxheight=1200&autorotate=false'},
-	{name: 'Gunung Putri', img:'https://i2.wp.com/hargakamar.com/wp-content/uploads/2019/04/Harga-Tiket-Masuk-Bukit-Alesano-Campground-Bogor.jpg?resize=630%2C380&ssl=1'},
-		{name: 'Bumi Perkemahan Cibubur', img:'https://www.travelblog.id/wp-content/uploads/2019/06/Travelblogid-Campground-Candi-Gedong-Songo.jpeg'},
-		{name: 'Himalaya', img:'https://www.nps.gov/mora/planyourvisit/images/OhanaCampground2016_CMeleedy_01_web.jpeg?maxwidth=1200&maxheight=1200&autorotate=false'}
-	];
+//Schema Setup
+var campgroundsSchema = new mongoose.Schema({
+	name: String,
+	img_url: String,
+	description: String
+});
+
+var Campground = mongoose.model('Campground', campgroundsSchema);
 
 app.get('/', function(req, res) {
 	res.render('landing');
 });
 
 app.get('/campgrounds', function(req, res) {
-	res.render('campgrounds', {campgrounds: campgrounds});
+	Campground.find({})
+		.then((campgrounds) => {
+			res.render('campgrounds', {campgrounds: campgrounds});
+		})
+		.catch((err) => {
+			redirect('/campgrounds/new');
+		})
+	// res.render('campgrounds', {campgrounds: campgrounds});
 });
 
 app.post('/campgrounds', function(req, res) {
 	var name = req.body.campName;
 	var url = req.body.campImage;
-	var newCamp = {name: name, img: url};
-	campgrounds.push(newCamp);
-	res.redirect('/campgrounds');
+	var desc = req.body.campDescription;
+	Campground.create({
+		name: name,
+		img_url: url,
+		description: desc
+	})
+	.then((campground) => {
+		res.redirect('/campgrounds');
+	})
+	.catch((err) => {
+		redirect('/campgrounds/new');
+	});
 });
 
 app.get('/campgrounds/new', function(req, res) {
 	res.render('new');
+});
+
+app.get('/campgrounds/:id', function(req, res) {
+	Campground.findById(req.params.id)
+		.then((campground) => {
+			res.render('show', {campground: campground});
+		})
+		.catch((err) => {
+			redirect('/campgrounds');
+		});
 });
 
 app.listen(3000, function() {

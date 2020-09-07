@@ -13,10 +13,10 @@
 		<% campgrounds.forEach(function(data) { %>
 		<div class='col-md-3 col-sm-6 mb-3'>
 			<div class='card'>
-				<img src='<%= data.img %>' class='card-img-top' alt='image'>
-				<div class='card-body'>
+				<img src='<%= data.img_url %>' class='card-img-top' alt='image'>
+				<div class='card-body text-center'>
 					<h5 class='card-title'><%= data.name %></h5>
-					<a href='#' class='btn btn-primary'>Details</a>
+					<a href='/campgrounds/<%= data._id %>' class='btn btn-primary'>Details</a>
 				  </div>
 			</div>
 		</div>
