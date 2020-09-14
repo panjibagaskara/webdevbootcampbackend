@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+<div class='ui main text container segment'>
+	<div class='ui huge header'>
+		<%= blog.title %>
+	</div>
+	<div class='ui top attached'>
+		<div class='item'>
+			<img class='ui image centered rounded' src='<%= blog.image %>'>
+			<div class='content'>
+				<span><%= blog.created.toLocaleString('id-ID', {timeZone: 'UTC'}) %></span>
+			</div>
+			<div class='description'>
+				<p><%- blog.body %></p>
+			</div>
+		</div>
+	</div>
+	<form class='delete-button' action='/blogs/<%= blog._id %>?_method=DELETE' method='post'>
+		<button class='ui red basic button'>Delete</button>
+	</form>
+	<a href='/blogs/<%= blog._id %>/edit' class='ui green basic button'>Edit</a>
+</div>
+<%- include('partials/footer') %>
