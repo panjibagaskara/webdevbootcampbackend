@@ -2,13 +2,40 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	mongoose = require('mongoose'),
 	dotenv = require('dotenv'),
+	passport = require('passport'),
+	LocalStrategy = require('passport-local'),
+	session = require('express-session'),
 	Campground = require('./models/campground'),
 	Comment = require('./models/comment'),
 	User = require('./models/user'),
 	app = express();
 
+var campgroundRoutes = require('./routes/campgrounds'),
+	commentRoutes = require('./routes/comments'),
+	indexRoutes = require('./routes/index');
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+
+// ====== PASSPORT SESSION CONFIG ======
+
+app.use(session({
+	secret: 'abc',
+	resave: false,
+	saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy({
+	usernameField:"user[username]", 
+	passwordField:"user[password]"
+}, User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ===== DB CONFIG ======
+
 dotenv.config({path: '/workspace/webdevbootcamp/.env', debug: process.env.DEBUG});
 mongoose.connect(process.env.DB_HOST, {
 	useNewUrlParser: true,
@@ -16,82 +43,15 @@ mongoose.connect(process.env.DB_HOST, {
 	useFindAndModify: false
 });
 
-
-app.get('/', function(req, res) {
-	res.render('landing');
+// ===== MAIN APP =====
+app.use(function(req, res, next){
+	res.locals.currentUser = req.user;
+	next();
 });
 
-app.get('/campgrounds', function(req, res) {
-	Campground.find({})
-		.then((campgrounds) => {
-			res.render('campgrounds/campgrounds', {campgrounds: campgrounds});
-		})
-		.catch((err) => {
-			redirect('/campgrounds/new');
-		})
-	// res.render('campgrounds', {campgrounds: campgrounds});
-});
-
-app.post('/campgrounds', function(req, res) {
-	var name = req.body.campName;
-	var url = req.body.campImage;
-	var desc = req.body.campDescription;
-	Campground.create({
-		name: name,
-		img_url: url,
-		description: desc
-	})
-	.then((campground) => {
-		res.redirect('/campgrounds');
-	})
-	.catch((err) => {
-		redirect('/campgrounds/new');
-	});
-});
-
-app.get('/campgrounds/new', function(req, res) {
-	res.render('campgrounds/new');
-});
-
-app.get('/campgrounds/:id', function(req, res) {
-	Campground.findById(req.params.id).populate('comments').exec()
-		.then((campground) => {
-			res.render('campgrounds/show', {campground: campground});
-		})
-		.catch((err) => {
-			redirect('/campgrounds');
-		});
-});
-
-// Comment Section
-
-app.get('/campgrounds/:id/comments/new', function(req, res) {
-	Campground.findById(req.params.id)
-		.then((campground) => {
-			res.render('comments/new', {campground: campground});
-		})
-		.catch((err) => {
-			res.redirect('/campgrounds/' + req.params.id);
-		});
-});
-
-app.post('/campgrounds/:id/comments', function(req, res) {
-	Campground.findById(req.params.id)
-		.then((campground) => {
-			Comment.create(req.body.comment)
-			.then((comment) => {
-				campground.comments.push(comment);
-				campground.save();
-				res.redirect('/campgrounds/' + campground._id);
-			})
-			.catch((err) => {
-				res.redirect('/campgrounds/' + campground._id + '/comments/new');
-			});
-		})
-		.catch((err) => {
-			res.redirect('/campgrounds');
-		});
-});
+app.use('/', indexRoutes);
+app.use('/campgrounds',campgroundRoutes);
+app.use('/campgrounds/:id/comments',commentRoutes);
 
 app.listen(3000, function() {
 	console.log('Yelp Camp Started');
