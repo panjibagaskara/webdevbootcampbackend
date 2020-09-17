@@ -5,8 +5,7 @@ var express = require('express'),
 	passport = require('passport'),
 	LocalStrategy = require('passport-local'),
 	session = require('express-session'),
-	Campground = require('./models/campground'),
-	Comment = require('./models/comment'),
+	methodOverride = require('method-override'),
 	User = require('./models/user'),
 	app = express();
 
@@ -16,6 +15,7 @@ var campgroundRoutes = require('./routes/campgrounds'),
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride('_method'));
 
 // ====== PASSPORT SESSION CONFIG ======
 
@@ -36,7 +36,7 @@ passport.deserializeUser(User.deserializeUser());
 
 // ===== DB CONFIG ======
 
-dotenv.config({path: '/workspace/webdevbootcamp/.env', debug: process.env.DEBUG});
+dotenv.config({path: '../.env', debug: process.env.DEBUG});
 mongoose.connect(process.env.DB_HOST, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,

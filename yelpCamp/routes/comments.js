@@ -18,8 +18,10 @@ router.post('/', isLoggedIn, function(req, res) {
 		.then((campground) => {
 			Comment.create(req.body.comment)
 			.then((comment) => {
-				campground.comments.author = req.user;
-				campground.save();
+				comment.author.id = req.user._id;
+				comment.author.username = req.user.username;
+				comment.campID = campground._id;
+				comment.save();
 				campground.comments.push(comment);
 				campground.save();
 				res.redirect('/campgrounds/' + campground._id);

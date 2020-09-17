@@ -16,6 +16,15 @@
 					<h5 class='float-right'>Rp100.000/malam</h5>
 					<h5 class='card-title'><%= campground.name %></h5>
 					<p class='card-text text-justify'><%= campground.description %></p>
+					<p class="blackquote-footer">Submitted By 
+						<strong>
+							<cite title='<%= campground.author.username %>'><%= campground.author.username %></cite>
+						</strong>
+					</p>
+					<a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-warning">Edit</a>
+					<form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="post">
+						<button type="submit" class="btn btn-danger">DELETE</button>
+					</form>
 				</div>
 			</div>
 			<div class='card card-body bg-light mt-2'>
