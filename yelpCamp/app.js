@@ -6,6 +6,8 @@ var express = require('express'),
 	LocalStrategy = require('passport-local'),
 	session = require('express-session'),
 	methodOverride = require('method-override'),
+	flash = require('connect-flash'),
+	path = require('path'),
 	User = require('./models/user'),
 	app = express();
 
@@ -15,7 +17,9 @@ var campgroundRoutes = require('./routes/campgrounds'),
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
+app.use(flash());
 
 // ====== PASSPORT SESSION CONFIG ======
 
@@ -46,6 +50,8 @@ mongoose.connect(process.env.DB_HOST, {
 // ===== MAIN APP =====
 app.use(function(req, res, next){
 	res.locals.currentUser = req.user;
+	res.locals.error = req.flash('error');
+	res.locals.success = req.flash('success');
 	next();
 });
 

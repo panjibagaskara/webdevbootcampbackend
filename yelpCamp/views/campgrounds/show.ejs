@@ -13,7 +13,7 @@
 			<div class='card'>
 				<img src='<%= campground.img_url %>' class='card-img-top' alt='image'>
 				<div class='card-body'>
-					<h5 class='float-right'>Rp100.000/malam</h5>
+					<h5 class='float-right'>Rp<%= campground.price %>/malam</h5>
 					<h5 class='card-title'><%= campground.name %></h5>
 					<p class='card-text text-justify'><%= campground.description %></p>
 					<p class="blackquote-footer">Submitted By 
@@ -21,10 +21,12 @@
 							<cite title='<%= campground.author.username %>'><%= campground.author.username %></cite>
 						</strong>
 					</p>
+					<% if(currentUser && campground.author.id.equals(currentUser.id)){ %>
 					<a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-warning">Edit</a>
 					<form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="post">
 						<button type="submit" class="btn btn-danger">DELETE</button>
 					</form>
+					<% } %>
 				</div>
 			</div>
 			<div class='card card-body bg-light mt-2'>
@@ -38,6 +40,13 @@
 							<strong><%= comment.author.username %></strong>
 							<span class='float-right'>10 days ago</span>
 							<p><%= comment.text %></p>
+							<% if(currentUser && comment.author.id.equals(currentUser.id)){ %>
+							<a href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit" 
+								class="btn btn-xs btn-warning">Edit</a>
+							<form class="d-inline" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=DELETE" method="post">
+								<button class="btn btn-xs btn-danger">Delete</button>
+							</form>
+							<% } %>
 						</div>
 					</div>
 				<% }) %>
